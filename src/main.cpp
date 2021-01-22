@@ -2,20 +2,33 @@
 Author: Omar T. Mohammed
 Date: 18-Jan-2021 */
 
-#include <vector>
+//g++ -include ../headers/Net.cpp -include ../headers/Neuron.cpp main.cpp -o main `pkg-config --cflags --libs opencv`
+
+//! [includes]
 #include "../headers/Net.h"
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <string>
+#include <algorithm>
+#include <vector>
 #include <iostream>
+using namespace cv;
 using namespace std;
 
 
-int main()
+int main(void)
 
 {
     /* Create a vector of topology, which specifies number of layers and neurons in the Neural network. */
 	 vector <unsigned> topology;
 
 	/* Input layer e.g topology.push_back(2) has 2 neurons */
-	topology.push_back(2);
+	topology.push_back(784);
+
+	/* Hidden layer, e.g topology.push_back(8) has 8 neurons */
+	topology.push_back(16);
 
 	/* Hidden layer, e.g topology.push_back(8) has 8 neurons */
 	topology.push_back(8);
@@ -26,13 +39,6 @@ int main()
  /* Initialize a Network with the above specifications */
   Net myNet(topology);
 
-/* Creating a dynamic dataset to solve XOR problem. */
-
-// First bit.
-unsigned a=0;
-
-//Second bit.
-unsigned b=0;
 
 // A vector to store inputs.
 vector <double> inputVals;
@@ -43,48 +49,53 @@ vector <double> targetVals;
 // A vector to store Results after the training is finished.
 vector <double> resultVals;
 
-
+	srand(time(0));
 /***************************Training Phase**************************************/
 /* do epochs-th to train the created Network. */
-for(unsigned epochs=0;epochs<1000;++epochs)
+for(unsigned epochs=0;epochs<10;++epochs)
 {
-	/* Store the first bit in the inputVals. */
-	inputVals.push_back(a);
 
-	/* Store the second bit in the inputVals. */
-	inputVals.push_back(b);
+	// Read all .jpg files from the specified folder
+
+		double target=rand()%3;
+		char b = target +'0';
+		string image_path = "../images/";
+		image_path.append(sizeof(char), b);
+		image_path+="/*.jpg";
+		vector<string> filenames;
+		glob(image_path, filenames);
+		//Random shuffle
+		random_shuffle(filenames.begin(), filenames.end());
+		Mat img = imread(filenames[0], IMREAD_COLOR);
+		//! [imread]
+
+		//! [empty]
+		if(img.empty())
+		{
+				cout << "Could not read the image: " << image_path << std::endl;
+				return 1;
+	 }
+	 resize(img, img, Size(28,28), 0, 0, INTER_CUBIC); // resize to 28x28 resolution
+	 cvtColor(img, img, COLOR_BGR2GRAY);
 
 
-/* These conditions assigns bits to a and b with it's corresponding Target to statisfy the XOR problem. */
-	if(a==0 && b==0)
-	{
-		a=1;
-		b=0;
-		targetVals.push_back(0);
+	img.convertTo(img, CV_32FC1); // or CV_32F works (too)
+	//vector<double> array;
+	if (img.isContinuous()) {
+	inputVals.assign((float*)img.datastart, (float*)img.dataend);
+	} else {
+	for (int i = 0; i < img.rows; ++i) {
+		inputVals.insert(inputVals.end(), img.ptr<float>(i), img.ptr<float>(i)+img.cols);
+
 	}
-	else if( a==1  && b==0)
-	{
-		a=0;
-		b=1;
-		targetVals.push_back(1);
 	}
-	else if( a==0  && b==1)
-	{
-		a=1;
-		b=1;
-		targetVals.push_back(1);
-	}
-	else if( a==1  && b==1)
-	{
-		a=0;
-		b=0;
-		targetVals.push_back(0);
-	}
+
 
   /* Do feedForward. */
 	myNet.feedForward(inputVals);
 
   /* Do Back backProbagation. */
+	targetVals.push_back(target);
 	myNet.backProbagation(targetVals);
 
  /* Store the results in resultVals. */
@@ -92,7 +103,8 @@ for(unsigned epochs=0;epochs<1000;++epochs)
 
  /* Output the final resutls. */
 	for(unsigned i=0;i<resultVals.size();++i)
-		{cout<<"Prediction = "<<resultVals[i]<<endl;}
+		{cout<<"Iteration: "<<epochs<<endl<<"Real = "<<target<<"			Prediction = "<<resultVals[i]<<endl;
+		 cout<<"===============================================================\n\n";}
 
 /* Clear all. */
 	inputVals.clear();
@@ -103,21 +115,32 @@ for(unsigned epochs=0;epochs<1000;++epochs)
 //**********************Make Predictions************************************/
 
 /* Clear the console. */
-system("clear");
+//system("clear");
 
-/* Enter the first bit. */
-cout<<"Enter the first input:";
-cin>>a;
+string image_path = "../images/tests/test1.jpg";
+Mat img = imread(image_path, IMREAD_COLOR);
+//! [imread]
 
-/* Store the first bit into inputVals. */
-inputVals.push_back(a);
+//! [empty]
+if(img.empty())
+{
+		std::cout << "Could not read the image: " << image_path << std::endl;
+		return 1;
+}
+resize(img, img, Size(28,28), 0, 0, INTER_CUBIC); // resize to 28x28 resolution
+cvtColor(img, img, COLOR_BGR2GRAY);
 
-/* Enter the Second bit. */
-cout<<"Enter the Second input:";
-cin>>b;
 
-/* Store the first bit into inputVals. */
-inputVals.push_back(b);
+img.convertTo(img, CV_32FC1); // or CV_32F works (too)
+
+if (img.isContinuous()) {
+inputVals.assign((float*)img.datastart, (float*)img.dataend);
+} else {
+for (int i = 0; i < img.rows; ++i) {
+inputVals.insert(inputVals.end(), img.ptr<float>(i), img.ptr<float>(i)+img.cols);
+
+}
+}
 
 /* Do feedForward to get an output */
 myNet.feedForward(inputVals);

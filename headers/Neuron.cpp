@@ -5,10 +5,10 @@
 #include <iostream>
 
 // Overall net learning rate, we might need to tune this number to make our network perform better and faster.
-double Neuron::learning_rate = 0.05;
+double Neuron::learning_rate = 0.001;
 
 // Momentum, multiplier of last deltaWeight, we might need to change this number to make our network perform better and faster.
-double Neuron::momentum = 0.9;
+double Neuron::momentum = 0.5;
 
 Neuron::Neuron(unsigned numOutPuts, unsigned myIndex)
 {
@@ -26,16 +26,6 @@ Neuron::Neuron(unsigned numOutPuts, unsigned myIndex)
 
 /* Handle the index of the neuron locally. */
 m_myIndex = myIndex;
-
-std::cout<<"Neuron number "<<m_myIndex<<" has been made"<<endl;
-std::cout<< "Connection weights " <<m_outputWeights.size()<<endl;
-for(unsigned i=0;i<m_outputWeights.size();++i)
-{ std::cout<<"Weight "<<i<<" = "<<m_outputWeights[i].weight<<endl;
-  //std::cout<<"Delta Weight "<<i<<" = "<<m_outputWeights[i].deltaWeight<<endl;
-}
-std::cout<<"Output Value = "<<m_outputVal<<endl;
-std::cout<<"===================================================\n";
-
 
 
 }
@@ -73,7 +63,7 @@ void Neuron::feedforward(const Layer &preLayer)
 
 	//m_outputVal = sum;
 
-	cout<<m_outputVal<<endl;
+
 }
 
 void Neuron::calcOutputGradients(double targetVals)
