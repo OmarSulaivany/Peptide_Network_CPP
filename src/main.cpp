@@ -28,10 +28,16 @@ int main(void)
 	topology.push_back(784);
 
 	/* Hidden layer, e.g topology.push_back(8) has 8 neurons */
-	topology.push_back(16);
+	topology.push_back(250);
 
 	/* Hidden layer, e.g topology.push_back(8) has 8 neurons */
-	topology.push_back(8);
+	topology.push_back(127);
+
+	/* Hidden layer, e.g topology.push_back(8) has 8 neurons */
+	topology.push_back(64);
+
+	/* Hidden layer, e.g topology.push_back(8) has 8 neurons */
+	topology.push_back(32);
 
 	/* Output layer, e.g topology.push_back(1) has one neuron*/
 	topology.push_back(1);
@@ -52,12 +58,12 @@ vector <double> resultVals;
 	srand(time(0));
 /***************************Training Phase**************************************/
 /* do epochs-th to train the created Network. */
-for(unsigned epochs=0;epochs<10;++epochs)
+for(unsigned epochs=0;epochs<10000;++epochs)
 {
 
 	// Read all .jpg files from the specified folder
 
-		double target=rand()%3;
+		double target=rand()%2;
 		char b = target +'0';
 		string image_path = "../images/";
 		image_path.append(sizeof(char), b);
@@ -102,7 +108,7 @@ for(unsigned epochs=0;epochs<10;++epochs)
 	myNet.getResults(resultVals);
 
  /* Output the final resutls. */
-	for(unsigned i=0;i<resultVals.size();++i)
+	//for(unsigned i=0;i<resultVals.size();++i)
 		{cout<<"Iteration: "<<epochs<<endl<<"Real = "<<target<<"			Prediction = "<<resultVals[i]<<endl;
 		 cout<<"===============================================================\n\n";}
 
@@ -117,7 +123,7 @@ for(unsigned epochs=0;epochs<10;++epochs)
 /* Clear the console. */
 //system("clear");
 
-string image_path = "../images/tests/test1.jpg";
+string image_path = "../images/tests/test2.jpg";
 Mat img = imread(image_path, IMREAD_COLOR);
 //! [imread]
 

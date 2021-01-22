@@ -5,7 +5,7 @@
 #include <iostream>
 
 // Overall net learning rate, we might need to tune this number to make our network perform better and faster.
-double Neuron::learning_rate = 0.001;
+double Neuron::learning_rate = 0.1;
 
 // Momentum, multiplier of last deltaWeight, we might need to change this number to make our network perform better and faster.
 double Neuron::momentum = 0.5;
@@ -33,14 +33,17 @@ m_myIndex = myIndex;
 double Neuron::Activation(double x)
 {
     /* We will use Hyperbolic tangent function to transform our output value into a range between (-1,1). */
-	return tanh(x);
+	//return tanh(x);
+
+  return 1 / (1 + exp(-x));
 }
 
 
 double Neuron::Activation_prime(double x)
 {
     /* The derivative of Tanh(x). */
-	return 1- x * x;
+	//return 1- x * x;
+  return Activation(x) * (1 - Activation(x));
 }
 
 
