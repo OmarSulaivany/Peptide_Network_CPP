@@ -5,12 +5,12 @@
 #include <iostream>
 
 // Overall net learning rate, we might need to tune this number to make our network perform better and faster.
-double Neuron::learning_rate = 0.1;
+double Neuron::learning_rate = 0.01;
 
 // Momentum, multiplier of last deltaWeight, we might need to change this number to make our network perform better and faster.
 double Neuron::momentum = 0.5;
 
-Neuron::Neuron(unsigned numOutPuts, unsigned myIndex)
+Neuron::Neuron(unsigned numOutPuts, unsigned myIndex, unsigned numInPuts)
 {
 
 /* Loop through number of outputs, the next code will create connections based on the number of outputs, after that feed each weight
@@ -21,7 +21,8 @@ Neuron::Neuron(unsigned numOutPuts, unsigned myIndex)
  	m_outputWeights.push_back(Connection());
 
  	/* Set a random number to the Weight variable in the created connection. */
-    m_outputWeights.back().weight = randomWeight();
+    m_outputWeights.back().weight = randomWeight(numInPuts);
+  //  std::cout<<"N= "<<numInPuts<<"  Weight= "<<m_outputWeights.back().weight<<endl;
  }
 
 /* Handle the index of the neuron locally. */
@@ -33,18 +34,37 @@ m_myIndex = myIndex;
 double Neuron::Activation(double x)
 {
     /* We will use Hyperbolic tangent function to transform our output value into a range between (-1,1). */
-	//return tanh(x);
-
-  return 1 / (1 + exp(-x));
+//	return tanh(x);
+  //return 1 / (1 + exp(-x));
+if (x > 0) return x;
+	else return 0;
 }
-
 
 double Neuron::Activation_prime(double x)
 {
     /* The derivative of Tanh(x). */
 	//return 1- x * x;
-  return Activation(x) * (1 - Activation(x));
+  //return Activation(x) * (1 - Activation(x));
+
+  if (x > 0) return 1;
+	else return 0;
 }
+
+
+
+/* This function will return a random decimal number between 0,1. We need this function because when we first construct a neuron
+ we need to assign to it random weight values. */
+double Neuron::randomWeight(unsigned numInPuts)
+
+{
+  double rand_num;
+
+  rand_num = -1 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1 - (-1))));
+  rand_num *=1/sqrt(numInPuts);
+  return rand_num;
+
+}
+
 
 
 void Neuron::feedforward(const Layer &preLayer)

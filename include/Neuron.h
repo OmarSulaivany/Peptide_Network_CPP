@@ -23,7 +23,7 @@ public:
 
   /* To construct a neuron it need to know the number of neurons in the next layer,/
      and the index number for indexing the weight vector while doing the feedforward. */
-	Neuron(unsigned numOutputs, unsigned myIndex);
+	Neuron(unsigned numOutputs, unsigned myIndex , unsigned numInPuts);
 
   /* This function assigns output values to the neurons that comes from Feedforward function in th Net class. */
   void setOutputVal(double val) { m_outputVal = val;}
@@ -59,7 +59,7 @@ private:
 
   /* This function will return a random decimal number between 0,1. We need this function because when we first construct a neuron
    we need to assign to it random weight values. */
-	static double randomWeight(void) { return rand() / double(RAND_MAX);}
+	 double randomWeight(unsigned numInPuts);
 
   // Is the learning rate of the overall Network.
   static double learning_rate;

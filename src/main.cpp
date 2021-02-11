@@ -2,10 +2,10 @@
 Author: Omar T. Mohammed
 Date: 18-Jan-2021 */
 
-//g++ -include ../headers/Net.cpp -include ../headers/Neuron.cpp main.cpp -o main `pkg-config --cflags --libs opencv`
+//g++ -include ../headers/Net.cpp -include ../include/Neuron.cpp main.cpp -o main `pkg-config --cflags --libs opencv`
 
 //! [includes]
-#include "../headers/Net.h"
+#include "../include/Net.h"
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
@@ -14,6 +14,7 @@ Date: 18-Jan-2021 */
 #include <algorithm>
 #include <vector>
 #include <iostream>
+#include <omp.h>
 using namespace cv;
 using namespace std;
 
@@ -28,16 +29,16 @@ int main(void)
 	topology.push_back(784);
 
 	/* Hidden layer, e.g topology.push_back(8) has 8 neurons */
-	topology.push_back(250);
+	topology.push_back(392);
 
 	/* Hidden layer, e.g topology.push_back(8) has 8 neurons */
-	topology.push_back(127);
+	topology.push_back(196);
 
 	/* Hidden layer, e.g topology.push_back(8) has 8 neurons */
-	topology.push_back(64);
+	topology.push_back(98);
 
 	/* Hidden layer, e.g topology.push_back(8) has 8 neurons */
-	topology.push_back(32);
+	topology.push_back(2);
 
 	/* Output layer, e.g topology.push_back(1) has one neuron*/
 	topology.push_back(1);
@@ -55,10 +56,12 @@ vector <double> targetVals;
 // A vector to store Results after the training is finished.
 vector <double> resultVals;
 
+//omp_set_num_threads(8);
+
 	srand(time(0));
 /***************************Training Phase**************************************/
 /* do epochs-th to train the created Network. */
-for(unsigned epochs=0;epochs<10000;++epochs)
+for(unsigned epochs=0;epochs<20000;++epochs)
 {
 
 	// Read all .jpg files from the specified folder
@@ -76,41 +79,48 @@ for(unsigned epochs=0;epochs<10000;++epochs)
 		//! [imread]
 
 		//! [empty]
-		if(img.empty())
-		{
-				cout << "Could not read the image: " << image_path << std::endl;
-				return 1;
-	 }
+	//	if(img.empty())
+	//	{
+	//			cout << "Could not read the image: " << image_path << std::endl;
+	//			return 1;
+	// }
 	 resize(img, img, Size(28,28), 0, 0, INTER_CUBIC); // resize to 28x28 resolution
 	 cvtColor(img, img, COLOR_BGR2GRAY);
 
 
 	img.convertTo(img, CV_32FC1); // or CV_32F works (too)
 	//vector<double> array;
+
 	if (img.isContinuous()) {
 	inputVals.assign((float*)img.datastart, (float*)img.dataend);
-	} else {
-	for (int i = 0; i < img.rows; ++i) {
+	}
+
+	else {
+
+	for (unsigned i = 0; i < img.rows; ++i) {
 		inputVals.insert(inputVals.end(), img.ptr<float>(i), img.ptr<float>(i)+img.cols);
 
 	}
 	}
 
 
-  /* Do feedForward. */
+	/* Do feedForward. */
 	myNet.feedForward(inputVals);
 
-  /* Do Back backProbagation. */
+	/* Do Back backProbagation. */
 	targetVals.push_back(target);
 	myNet.backProbagation(targetVals);
 
  /* Store the results in resultVals. */
 	myNet.getResults(resultVals);
 
+
+
  /* Output the final resutls. */
-	//for(unsigned i=0;i<resultVals.size();++i)
+	for(unsigned i=0;i<resultVals.size();++i)
 		{cout<<"Iteration: "<<epochs<<endl<<"Real = "<<target<<"			Prediction = "<<resultVals[i]<<endl;
-		 cout<<"===============================================================\n\n";}
+		cout<<"AverageERROR: "<<myNet.getRecentAverageError()<<endl;
+		cout<<"===============================================================\n\n";}
 
 /* Clear all. */
 	inputVals.clear();

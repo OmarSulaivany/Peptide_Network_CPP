@@ -30,6 +30,10 @@ Net::Net(const vector<unsigned> &topology)
 		has zero output connections.*/
 		unsigned numOutPuts = layerNum == topology.size() - 1 ? 0 : topology[layerNum + 1];
 
+		unsigned numInPuts = m_layers.size() < 2 ? topology[0] + 1 : topology[m_layers.size() - 2] + 1;
+		//std::cout<<"Layer number: "<<layerNum<<endl;
+		//std::cout<<"m_layers= "<<m_layers.size()<<endl;
+		//std::cout<<"numInputs= "<<numInPuts<<endl;
 
 
 
@@ -42,7 +46,7 @@ Net::Net(const vector<unsigned> &topology)
 		{
 
         /* Fill each layer with it's corresponding neurons, each neuron with it's number of output connections and it's index. */
-		m_layers.back().push_back(Neuron(numOutPuts, neuronNum));
+		m_layers.back().push_back(Neuron(numOutPuts, neuronNum, numInPuts));
 
 		//cout<< "Connection weights " <<m_outputWeights.size()<<endl;
 		//cout<<"===================================================\n";
@@ -134,13 +138,15 @@ void Net::backProbagation(const vector <double> &targetVals)
 	m_error /= outputLayer.size() - 1;
 
 	/* RMS, sequare root the Error and by that we have the RMS fully applied. */
-	//m_error = sqrt(m_error);
+	m_error = sqrt(m_error);
 
 	/* Implement a recent average measurement, for visualizing "printing" the error in the last couple of iterations to see
 	   how well the network perform. */
 	m_recentAverageError =
 		(m_recentAverageError * m_recentAverageSmoothingFactor + m_error)
 		/ (m_recentAverageSmoothingFactor + 1.0);
+
+
 
 /* 2- Calcualting the Gradient decent of the last layer.Calculate output layer gradients. */
 
